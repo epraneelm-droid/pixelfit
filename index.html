@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixelfit — Free Photo & Signature Resizer for Indian Exams</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <meta name="description" content="Resize, crop, and compress your passport photos and signatures for SSC, UPSC, NEET, JEE, IBPS, and 30+ Indian government exams. 100% free, instant, and private — nothing leaves your device.">
+    <meta name="keywords" content="exam photo resizer, SSC photo size, UPSC photo dimensions, NEET photo crop, passport photo compressor, Indian exam documents">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --primary: #6366f1;
+            --primary-soft: #818cf8;
+            --primary-pale: #e0e7ff;
+            --primary-ghost: #eef2ff;
+            --accent: #06b6d4;
+            --accent-soft: #67e8f9;
+            --accent-pale: #cffafe;
+            --violet: #8b5cf6;
+            --violet-pale: #ede9fe;
+            --gradient: linear-gradient(135deg, #6366f1, #818cf8, #06b6d4);
+            --gradient-btn: linear-gradient(135deg, #6366f1 0%, #818cf8 50%, #38bdf8 100%);
+            --gradient-success: linear-gradient(135deg, #34d399, #10b981);
+            --bg: #f8faff;
+            --bg-card: #ffffff;
+            --bg-section: #f1f5ff;
+            --text: #1e293b;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --border: #e2e8f0;
+            --border-soft: #f1f5f9;
+            --shadow-xs: 0 1px 2px rgba(99,102,241,0.04);
+            --shadow-sm: 0 2px 8px rgba(99,102,241,0.06);
+            --shadow-md: 0 4px 20px rgba(99,102,241,0.08);
+            --shadow-lg: 0 8px 40px rgba(99,102,241,0.10);
+            --shadow-glow: 0 4px 30px rgba(99,102,241,0.12);
+            --radius: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* Soft ambient background */
+        body::before {
+            content: '';
+            position: fixed; inset: 0; z-index: -1;
+            background:
+                radial-gradient(ellipse 80% 50% at 20% 10%, rgba(99,102,241,0.06) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 80% 90%, rgba(6,182,212,0.05) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 50% at 50% 50%, rgba(139,92,246,0.03) 0%, transparent 60%);
+        }
+
+        /* ===== NAVBAR ===== */
+        .navbar {
+            background: rgba(255,255,255,0.82);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(226,232,240,0.6);
+            padding: 0 2rem; height: 64px;
+            display: flex; align-items: center; justify-content: space-between;
+            position: sticky; top: 0; z-index: 100;
+        }
+
+        .navbar-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); }
+        .navbar-logo {
+            width: 34px; height: 34px; border-radius: 8px;
+            object-fit: cover;
+            box-shadow: 0 2px 10px rgba(99,102,241,0.15);
+        }
+        .navbar-title { font-weight: 700; font-size: 1.1rem; letter-spacing: -0.3px; }
+        .navbar-title span { color: var(--primary); }
+
+        .navbar-links { display: flex; align-items: center; gap: 1.75rem; }
+        .navbar-links a {
+            color: var(--text-secondary); text-decoration: none; font-size: 0.88rem; font-weight: 500;
+            transition: color var(--transition); position: relative;
+        }
+        .navbar-links a:hover { color: var(--primary); }
+        .navbar-links a::after {
+            content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 2px;
+            background: var(--gradient-btn); border-radius: 2px; transition: width var(--transition);
+        }
+        .navbar-links a:hover::after { width: 100%; }
+
+        @media (max-width: 600px) { .navbar { padding: 0 1rem; } .navbar-links { display: none; } }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; }
+
+        /* ===== HERO ===== */
+        .hero { text-align: center; padding: 4.5rem 0 2.5rem; }
+        .hero h1 { font-size: 2.8rem; font-weight: 900; letter-spacing: -1px; margin-bottom: 1rem; line-height: 1.15; color: var(--text); }
+        .hero h1 span {
+            background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-size: 200% auto; animation: shimmer 5s ease-in-out infinite;
+        }
+        @keyframes shimmer { 0%,100% { background-position: 0% center; } 50% { background-position: 100% center; } }
+
+        .hero p { font-size: 1.1rem; color: var(--text-secondary); max-width: 600px; margin: 0 auto; line-height: 1.7; }
+        @media (max-width: 600px) { .hero h1 { font-size: 1.8rem; } .hero p { font-size: 0.95rem; } .hero { padding: 3rem 0 2rem; } }
+
+        .trust-badges { display: flex; justify-content: center; gap: 0.75rem; margin-top: 2rem; flex-wrap: wrap; }
+        .trust-badge {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 0.78rem; color: var(--text-secondary); font-weight: 500;
+            background: white; padding: 7px 14px; border-radius: 50px;
+            border: 1px solid var(--border); box-shadow: var(--shadow-xs);
+            transition: all var(--transition);
+        }
+        .trust-badge:hover { border-color: var(--primary-pale); box-shadow: var(--shadow-sm); transform: translateY(-1px); }
+        .trust-badge svg { width: 15px; height: 15px; flex-shrink: 0; color: var(--primary-soft); }
+
+        /* ===== TOOL CARD ===== */
+        .tool-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            margin: 2.5rem auto 0; max-width: 960px;
+        }
+
+        /* ===== MODE TABS ===== */
+        .mode-tabs { display: flex; background: var(--bg-section); border-bottom: 1px solid var(--border-soft); }
+        .mode-tab {
+            flex: 1; padding: 1rem; text-align: center;
+            font-weight: 600; font-size: 0.9rem; color: var(--text-muted);
+            cursor: pointer; border: none; background: none; font-family: inherit;
+            transition: all var(--transition); position: relative;
+        }
+        .mode-tab:hover { color: var(--text-secondary); }
+        .mode-tab.active { color: var(--primary); background: white; }
+        .mode-tab.active::after {
+            content: ''; position: absolute; bottom: 0; left: 20%; right: 20%; height: 2.5px;
+            background: var(--gradient-btn); border-radius: 3px 3px 0 0;
+        }
+        .mode-tab svg { vertical-align: -2px; margin-right: 4px; }
+
+        /* Mode panels */
+        .mode-panel { display: none; padding: 1.25rem 2rem; border-bottom: 1px solid var(--border-soft); background: white; }
+        .mode-panel.active { display: block; }
+
+        .preset-row { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+        .preset-row label { font-size: 0.82rem; font-weight: 600; color: var(--text-secondary); white-space: nowrap; }
+        .preset-row select {
+            flex: 1; min-width: 200px; padding: 0.65rem 2.5rem 0.65rem 1rem;
+            border: 1.5px solid var(--border); border-radius: 10px;
+            font-family: inherit; font-size: 0.9rem; font-weight: 500; color: var(--text);
+            background: white; cursor: pointer; outline: none; transition: all var(--transition);
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='%236366f1' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 14px center;
+        }
+        .preset-row select:focus { border-color: var(--primary-soft); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+
+        .exam-spec-badge {
+            background: var(--primary-ghost); color: var(--primary); font-size: 0.75rem; font-weight: 600;
+            padding: 5px 12px; border-radius: 20px; white-space: nowrap;
+        }
+
+        .custom-row { display: flex; gap: 1rem; align-items: end; flex-wrap: wrap; }
+        .cs-field { flex: 1; min-width: 100px; }
+        .cs-field label { display: block; font-size: 0.7rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .cs-field input {
+            width: 100%; padding: 0.6rem 0.75rem; border: 1.5px solid var(--border); border-radius: 10px;
+            font-family: inherit; font-size: 0.9rem; color: var(--text); background: white; outline: none;
+            transition: all var(--transition);
+        }
+        .cs-field input:focus, #bug-desc:focus { border-color: var(--primary-soft); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+
+        @media (max-width: 600px) { .mode-panel { padding: 1rem 1.25rem; } }
+
+        /* Kerala */
+        .kerala-fields { display: none; padding: 0.75rem 2rem 1rem; background: var(--violet-pale); border-bottom: 1px solid var(--border-soft); }
+        .kerala-fields.active { display: block; }
+        .kerala-fields label { display: block; font-size: 0.72rem; font-weight: 600; color: var(--violet); margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.3px; }
+        .kerala-fields input { width: 100%; max-width: 280px; padding: 0.5rem 0.75rem; border: 1.5px solid rgba(139,92,246,0.2); border-radius: 8px; font-family: inherit; font-size: 0.85rem; color: var(--text); background: white; outline: none; margin-bottom: 0.5rem; }
+        .kerala-fields input:focus { border-color: var(--violet); }
+
+        /* ===== TOOL BODY ===== */
+        .tool-body { padding: 2.5rem; background: white; }
+        @media (max-width: 768px) { .tool-body { padding: 1.5rem; } }
+
+        /* ===== UPLOAD ZONE ===== */
+        .upload-zone {
+            border: 2px dashed var(--border); border-radius: var(--radius-lg);
+            padding: 4rem 2rem; text-align: center; cursor: pointer;
+            transition: all var(--transition); background: var(--bg);
+        }
+        .upload-zone:hover, .upload-zone.dragover { border-color: var(--primary-soft); background: var(--primary-ghost); }
+
+        .upload-icon {
+            width: 76px; height: 76px; margin: 0 auto 1.25rem;
+            background: var(--primary-pale); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .upload-icon svg { width: 30px; height: 30px; color: var(--primary); }
+        .upload-zone h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--text); }
+        .upload-zone p { color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.25rem; }
+
+        .upload-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 0.85rem 2.25rem; background: var(--gradient-btn); color: white; border: none;
+            border-radius: 50px; font-family: inherit; font-size: 0.95rem; font-weight: 600;
+            cursor: pointer; transition: all var(--transition);
+            box-shadow: 0 4px 16px rgba(99,102,241,0.25);
+        }
+        .upload-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(99,102,241,0.3); }
+        .upload-btn:active { transform: translateY(0); }
+
+        .upload-formats { margin-top: 1rem; font-size: 0.75rem; color: var(--text-muted); }
+
+        /* ===== EDITOR ===== */
+        .editor-panel { display: none; animation: fadeUp 0.4s ease; }
+        .editor-panel.active { display: block; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+        .editor-grid { display: grid; grid-template-columns: 1fr 320px; gap: 2rem; align-items: start; }
+        @media (max-width: 768px) { .editor-grid { grid-template-columns: 1fr; } }
+
+        .preview-area {
+            background: var(--bg-section); border: 1px solid var(--border-soft); border-radius: var(--radius-lg);
+            padding: 1.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            min-height: 380px; position: relative;
+        }
+        .preview-area canvas { max-width: 100%; max-height: 360px; border-radius: 8px; box-shadow: var(--shadow-md); background: white; }
+
+        .change-image-btn {
+            position: absolute; top: 10px; right: 10px;
+            background: white; color: var(--text-secondary); border: 1px solid var(--border);
+            border-radius: 8px; padding: 5px 12px; font-size: 0.75rem; font-weight: 600;
+            cursor: pointer; font-family: inherit; transition: all var(--transition);
+            box-shadow: var(--shadow-xs);
+        }
+        .change-image-btn:hover { border-color: var(--primary-soft); color: var(--primary); }
+
+        /* Sidebar */
+        .sidebar { display: flex; flex-direction: column; gap: 0.75rem; }
+
+        .control-group {
+            background: var(--bg); border: 1px solid var(--border-soft); border-radius: var(--radius); padding: 1rem 1.1rem;
+        }
+        .control-group label { display: block; font-size: 0.72rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.4px; }
+        .control-group input[type="range"] { width: 100%; accent-color: var(--primary); cursor: pointer; }
+
+        /* Size Meter */
+        .size-meter { background: var(--bg); border: 1px solid var(--border-soft); border-radius: var(--radius); padding: 1rem 1.1rem; }
+        .size-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; }
+        .size-current { font-size: 1.2rem; font-weight: 700; color: var(--text); }
+        .size-target { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; }
+        .meter-bar { height: 6px; background: var(--border-soft); border-radius: 3px; overflow: hidden; }
+        .meter-fill { height: 100%; width: 0%; border-radius: 3px; transition: width 0.35s ease, background 0.35s ease; }
+        .meter-fill.green { background: linear-gradient(90deg, #34d399, #10b981); }
+        .meter-fill.yellow { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
+        .meter-fill.red { background: linear-gradient(90deg, #f87171, #ef4444); }
+        .size-status { font-size: 0.72rem; margin-top: 0.35rem; font-weight: 500; }
+        .size-status.ok { color: var(--success); }
+        .size-status.warn { color: var(--warning); }
+        .size-status.over { color: var(--danger); }
+
+        /* Compress */
+        .compress-btn {
+            width: 100%; padding: 0.65rem;
+            background: var(--accent-pale); color: #0891b2; border: 1.5px solid rgba(6,182,212,0.2);
+            border-radius: 10px; font-family: inherit; font-size: 0.82rem; font-weight: 600;
+            cursor: pointer; transition: all var(--transition);
+            display: flex; align-items: center; justify-content: center; gap: 5px;
+        }
+        .compress-btn:hover { background: #a5f3fc; border-color: var(--accent); }
+        .compress-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+        /* Preview Btn */
+        .preview-download-btn {
+            width: 100%; padding: 0.9rem;
+            background: var(--gradient-btn); color: white; border: none;
+            border-radius: var(--radius); font-family: inherit; font-size: 0.95rem; font-weight: 700;
+            cursor: pointer; transition: all var(--transition);
+            display: flex; align-items: center; justify-content: center; gap: 7px;
+            box-shadow: 0 4px 16px rgba(99,102,241,0.2);
+        }
+        .preview-download-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(99,102,241,0.28); }
+        .preview-download-btn:active { transform: translateY(0); }
+        .preview-download-btn:disabled { background: var(--border); color: var(--text-muted); cursor: not-allowed; box-shadow: none; }
+        .preview-download-btn svg { width: 18px; height: 18px; }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(15,23,42,0.35); backdrop-filter: blur(10px);
+            z-index: 200; align-items: center; justify-content: center; padding: 1.5rem;
+        }
+        .modal-overlay.active { display: flex; }
+
+        .modal {
+            background: white; border: 1px solid var(--border);
+            border-radius: var(--radius-xl); box-shadow: var(--shadow-lg);
+            width: 100%; max-width: 540px; max-height: 90vh; overflow-y: auto;
+            animation: fadeUp 0.3s ease;
+        }
+
+        .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1.75rem; border-bottom: 1px solid var(--border-soft); }
+        .modal-header h2 { font-size: 1.1rem; font-weight: 700; }
+        .modal-close {
+            width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border);
+            background: var(--bg); display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: var(--text-muted); font-size: 1.1rem; transition: all var(--transition);
+        }
+        .modal-close:hover { background: var(--border-soft); color: var(--text); }
+
+        .modal-body { padding: 1.75rem; }
+        .modal-preview {
+            background: var(--bg-section); border: 1px solid var(--border-soft); border-radius: var(--radius);
+            padding: 1.25rem; display: flex; align-items: center; justify-content: center;
+            margin-bottom: 1.25rem; min-height: 180px;
+        }
+        .modal-preview img { max-width: 100%; max-height: 240px; border-radius: 6px; box-shadow: var(--shadow-sm); }
+
+        .modal-info { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 1.25rem; }
+        .modal-info-item { background: var(--bg); border: 1px solid var(--border-soft); border-radius: 10px; padding: 0.7rem 1rem; }
+        .modal-info-item .label { font-size: 0.65rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1px; }
+        .modal-info-item .value { font-size: 0.95rem; font-weight: 700; color: var(--text); }
+
+        .modal-format-label { font-size: 0.72rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem; }
+
+        .format-group { display: flex; border-radius: 10px; overflow: hidden; border: 1.5px solid var(--border); margin-bottom: 1.25rem; }
+        .format-option { flex: 1; text-align: center; }
+        .format-option input[type="radio"] { display: none; }
+        .format-option label {
+            display: block; padding: 0.55rem 0; font-size: 0.82rem; font-weight: 600;
+            color: var(--text-muted); cursor: pointer; transition: all var(--transition);
+            border-right: 1px solid var(--border-soft);
+        }
+        .format-option:last-child label { border-right: none; }
+        .format-option input:checked + label { background: var(--gradient-btn); color: white; }
+        .format-option label:hover { background: var(--bg); }
+
+        .final-download-btn {
+            width: 100%; padding: 0.9rem;
+            background: var(--gradient-success); color: white; border: none;
+            border-radius: var(--radius); font-family: inherit; font-size: 1rem; font-weight: 700;
+            cursor: pointer; transition: all var(--transition);
+            display: flex; align-items: center; justify-content: center; gap: 7px;
+            box-shadow: 0 4px 16px rgba(16,185,129,0.25);
+        }
+        .final-download-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(16,185,129,0.3); }
+        .final-download-btn:active { transform: translateY(0); }
+        .final-download-btn svg { width: 18px; height: 18px; }
+
+        /* ===== SECTIONS ===== */
+        .section-title { text-align: center; font-size: 1.75rem; font-weight: 800; margin-bottom: 0.5rem; letter-spacing: -0.3px; color: var(--text); }
+        .section-sub { text-align: center; color: var(--text-secondary); margin-bottom: 3rem; font-size: 0.95rem; }
+
+        /* ===== HOW IT WORKS ===== */
+        .how-section { padding: 5rem 0; }
+        .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+        @media (max-width: 700px) { .steps-grid { grid-template-columns: 1fr; } }
+
+        .step-card {
+            background: white; border: 1px solid var(--border); border-radius: var(--radius-lg);
+            padding: 2rem 1.5rem; text-align: center; transition: all var(--transition);
+        }
+        .step-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: var(--primary-pale); }
+
+        .step-num {
+            width: 48px; height: 48px; background: var(--gradient-btn); color: white;
+            border-radius: 14px; display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 1.15rem; margin: 0 auto 1.25rem;
+            box-shadow: 0 3px 12px rgba(99,102,241,0.2);
+        }
+        .step-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--text); }
+        .step-card p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.55; }
+
+        /* ===== TABLE ===== */
+        .ref-section { padding: 3rem 0 4rem; }
+        .ref-table-wrap { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); }
+        .ref-search { padding: 0.85rem 1.25rem; border-bottom: 1px solid var(--border-soft); }
+        .ref-search input {
+            width: 100%; padding: 0.6rem 1rem 0.6rem 2.5rem;
+            border: 1.5px solid var(--border); border-radius: 50px; font-family: inherit; font-size: 0.85rem;
+            outline: none; color: var(--text);
+            background: var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='%236366f1' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zm-5.242.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z'/%3E%3C/svg%3E") no-repeat 12px center;
+            transition: all var(--transition);
+        }
+        .ref-search input:focus { border-color: var(--primary-soft); box-shadow: 0 0 0 3px rgba(99,102,241,0.08); }
+
+        .ref-table-scroll { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th { padding: 0.75rem 1.15rem; text-align: left; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); background: var(--bg); border-bottom: 1px solid var(--border-soft); }
+        td { padding: 0.75rem 1.15rem; font-size: 0.85rem; border-bottom: 1px solid var(--border-soft); }
+        tr:hover td { background: var(--primary-ghost); }
+        tr:last-child td { border-bottom: none; }
+        .exam-name-cell { font-weight: 600; }
+
+        .type-badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 0.68rem; font-weight: 600; text-transform: uppercase; }
+        .type-badge.photo { background: var(--primary-ghost); color: var(--primary); }
+        .type-badge.sign { background: #fef3c7; color: #92400e; }
+        .type-badge.stamp { background: var(--violet-pale); color: var(--violet); }
+
+        .use-btn {
+            padding: 4px 12px; background: white; border: 1.5px solid var(--primary-soft); color: var(--primary);
+            border-radius: 6px; font-family: inherit; font-size: 0.72rem; font-weight: 600;
+            cursor: pointer; transition: all var(--transition);
+        }
+        .use-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
+
+        /* ===== FAQ ===== */
+        .faq-section { padding: 3rem 0 4rem; }
+        .faq-list { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 0.5rem; }
+        .faq-item { background: white; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: all var(--transition); }
+        .faq-item:hover { box-shadow: var(--shadow-xs); }
+        .faq-q { padding: 1rem 1.25rem; font-weight: 600; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 1rem; user-select: none; color: var(--text); transition: color var(--transition); }
+        .faq-q:hover { color: var(--primary); }
+        .faq-arrow { width: 18px; height: 18px; flex-shrink: 0; transition: transform 0.3s ease; color: var(--text-muted); }
+        .faq-item.open .faq-arrow { transform: rotate(180deg); color: var(--primary); }
+        .faq-a { max-height: 0; overflow: hidden; transition: max-height 0.35s ease, padding 0.35s ease; }
+        .faq-item.open .faq-a { max-height: 300px; padding: 0 1.25rem 1rem; }
+        .faq-a p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.7; }
+
+        /* ===== FOOTER ===== */
+        .footer { background: white; border-top: 1px solid var(--border); padding: 2.5rem 0; text-align: center; }
+        .footer-brand { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.4rem; }
+        .footer-brand span { color: var(--primary); }
+        .footer p { font-size: 0.8rem; color: var(--text-muted); max-width: 480px; margin: 0 auto 0.75rem; }
+        .footer-links { display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; }
+        .footer-links a { font-size: 0.8rem; color: var(--text-secondary); text-decoration: none; font-weight: 500; transition: color var(--transition); }
+        .footer-links a:hover { color: var(--primary); }
+
+        /* Toast */
+        .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--gradient-success); color: white; padding: 0.8rem 1.5rem; border-radius: 50px; font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; gap: 7px; box-shadow: var(--shadow-md); opacity: 0; transition: all 0.4s ease; z-index: 999; pointer-events: none; }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+        /* Scroll top */
+        .scroll-top { position: fixed; bottom: 2rem; right: 2rem; width: 42px; height: 42px; background: var(--gradient-btn); color: white; border: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; transform: translateY(10px); transition: all var(--transition); box-shadow: 0 3px 12px rgba(99,102,241,0.2); z-index: 90; }
+        .scroll-top.visible { opacity: 1; transform: translateY(0); }
+        .scroll-top:hover { box-shadow: 0 6px 20px rgba(99,102,241,0.3); }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="/" class="navbar-brand"><img src="logo.png" alt="Pixelfit Logo" class="navbar-logo"><div class="navbar-title">Pixel<span>fit</span></div></a>
+    <div class="navbar-links"><a href="#how-it-works">How It Works</a><a href="#all-exams">All Exams</a><a href="#faq">FAQ</a><a href="#" id="bug-link">Report Bug</a></div>
+</nav>
+
+<div class="container">
+    <section class="hero">
+        <h1 id="page-title">Resize Your <span>Exam Photo</span> in Seconds</h1>
+        <p id="page-desc">Perfectly crop, resize, and compress photos & signatures for SSC, UPSC, NEET, and 30+ Indian exams. 100% free. Nothing ever leaves your device.</p>
+        <div class="trust-badges">
+            <div class="trust-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>100% Private</div>
+            <div class="trust-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg>Instant</div>
+            <div class="trust-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Any Device</div>
+            <div class="trust-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>30+ Exams</div>
+        </div>
+    </section>
+
+    <div class="tool-card">
+        <div class="mode-tabs">
+            <button class="mode-tab active" data-mode="preset"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Exam Preset</button>
+            <button class="mode-tab" data-mode="custom"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>Custom Size</button>
+        </div>
+
+        <div class="mode-panel active" id="panel-preset">
+            <div class="preset-row"><label for="exam-select">Exam:</label><select id="exam-select"></select><span class="exam-spec-badge" id="spec-badge">350 × 450 px · 50 KB</span></div>
+        </div>
+        <div class="mode-panel" id="panel-custom">
+            <div class="custom-row">
+                <div class="cs-field"><label>Width (px)</label><input type="number" id="cs-w" value="350" min="10" max="5000"></div>
+                <div class="cs-field"><label>Height (px)</label><input type="number" id="cs-h" value="450" min="10" max="5000"></div>
+                <div class="cs-field"><label>Max Size (KB)</label><input type="number" id="cs-kb" value="50" min="1" max="10000"></div>
+            </div>
+        </div>
+
+        <div class="kerala-fields" id="kerala-fields"><label>Candidate Name</label><input type="text" id="kerala-name" placeholder="E.g., ARUN KUMAR"><label>Date of Photo</label><input type="text" id="kerala-date" placeholder="DD/MM/YYYY"></div>
+
+        <div class="tool-body">
+            <div class="upload-zone" id="upload-zone">
+                <div class="upload-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+                <h3>Drop your image here</h3>
+                <p>or click the button below to select a file</p>
+                <button class="upload-btn" id="upload-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Select Image</button>
+                <p class="upload-formats">Supports JPG, PNG, and WebP</p>
+                <input type="file" id="file-input" style="display:none;" accept="image/jpeg,image/png,image/webp">
+            </div>
+
+            <div class="editor-panel" id="editor-panel">
+                <div class="editor-grid">
+                    <div class="preview-area"><canvas id="canvas"></canvas><button class="change-image-btn" id="change-image-btn">Change Image</button></div>
+                    <div class="sidebar">
+                        <div class="control-group"><label>Horizontal Offset</label><input type="range" id="offset-x" min="-50" max="50" value="0"></div>
+                        <div class="control-group"><label>Vertical Offset</label><input type="range" id="offset-y" min="-50" max="50" value="0"></div>
+                        <div class="control-group"><label>Zoom</label><input type="range" id="zoom-slider" min="50" max="200" value="100"></div>
+                        <div class="control-group"><label>Image Quality</label><input type="range" id="quality-slider" min="10" max="100" step="1" value="90"><div style="display:flex;justify-content:space-between;font-size:0.68rem;color:var(--text-muted);margin-top:3px"><span>Smaller</span><span id="quality-val">90%</span><span>Better</span></div></div>
+                        <div class="size-meter"><div class="size-header"><span class="size-current" id="size-current">0 KB</span><span class="size-target" id="size-target">Max 50 KB</span></div><div class="meter-bar"><div class="meter-fill green" id="meter-fill"></div></div><div class="size-status ok" id="size-status">Ready</div></div>
+                        <button class="compress-btn" id="compress-btn" disabled><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>Auto-Compress to Fit</button>
+                        <button class="preview-download-btn" id="preview-btn" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Preview & Download</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+        <div class="modal-header"><h2>Download Preview</h2><button class="modal-close" id="modal-close">&times;</button></div>
+        <div class="modal-body">
+            <div class="modal-preview"><img id="modal-img" src="" alt="Preview"></div>
+            <div class="modal-info"><div class="modal-info-item"><div class="label">Dimensions</div><div class="value" id="modal-dims">–</div></div><div class="modal-info-item"><div class="label">File Size</div><div class="value" id="modal-size">–</div></div></div>
+            <div class="modal-format-label">Output Format</div>
+            <div class="format-group"><div class="format-option"><input type="radio" name="output-format" id="fmt-jpg" value="image/jpeg" checked><label for="fmt-jpg">JPG</label></div><div class="format-option"><input type="radio" name="output-format" id="fmt-png" value="image/png"><label for="fmt-png">PNG</label></div><div class="format-option"><input type="radio" name="output-format" id="fmt-webp" value="image/webp"><label for="fmt-webp">WebP</label></div></div>
+            <button class="final-download-btn" id="final-download-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download Image</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="bug-modal-overlay">
+    <div class="modal">
+        <div class="modal-header"><h2>Report a Bug</h2><button class="modal-close" id="bug-modal-close">&times;</button></div>
+        <div class="modal-body">
+            <label style="display:block;font-size:0.72rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.5rem;">Describe the issue</label>
+            <textarea id="bug-desc" placeholder="What went wrong? E.g., 'The image size did not compress to 20 KB' or 'The preview is blurry'" style="width:100%;height:100px;padding:0.75rem;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:0.88rem;outline:none;transition:all var(--transition);margin-bottom:1.25rem;resize:vertical;"></textarea>
+            
+            <label style="display:block;font-size:0.72rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.5rem;">System Diagnostic Info (Auto-generated)</label>
+            <div id="bug-diagnostics" style="background:var(--bg);border:1px solid var(--border-soft);border-radius:10px;padding:0.75rem 1rem;font-family:monospace;font-size:0.72rem;color:var(--text-secondary);max-height:120px;overflow-y:auto;margin-bottom:1.25rem;white-space:pre-wrap;word-break:break-all;"></div>
+            
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+                <button class="compress-btn" id="bug-copy-btn" style="margin:0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy Diagnostics</button>
+                <button class="final-download-btn" id="bug-submit-btn" style="background:var(--gradient-btn);box-shadow:0 4px 16px rgba(99,102,241,0.2);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Send Report</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <section class="how-section" id="how-it-works">
+        <h2 class="section-title">How It Works</h2>
+        <p class="section-sub">Three simple steps. No sign-up. No watermark.</p>
+        <div class="steps-grid">
+            <div class="step-card"><div class="step-num">1</div><h3>Select Your Exam</h3><p>Choose from 30+ presets or enter custom dimensions.</p></div>
+            <div class="step-card"><div class="step-num">2</div><h3>Upload & Adjust</h3><p>Drop your photo. Fine-tune position, zoom, and quality.</p></div>
+            <div class="step-card"><div class="step-num">3</div><h3>Preview & Download</h3><p>See a preview. Pick your format. Download instantly.</p></div>
+        </div>
+    </section>
+</div>
+
+<div class="container">
+    <section class="ref-section" id="all-exams">
+        <h2 class="section-title">All Supported Exams</h2>
+        <p class="section-sub">Official photo & signature specs for every major Indian exam.</p>
+        <div class="ref-table-wrap"><div class="ref-search"><input type="text" id="table-search" placeholder="Search exams..."></div><div class="ref-table-scroll"><table><thead><tr><th>Exam</th><th>Width × Height</th><th>Max Size</th><th>Type</th><th></th></tr></thead><tbody id="exam-tbody"></tbody></table></div></div>
+    </section>
+</div>
+
+<div class="container">
+    <section class="faq-section" id="faq">
+        <h2 class="section-title">FAQ</h2>
+        <div class="faq-list">
+            <div class="faq-item"><div class="faq-q">Is my photo uploaded to any server?<svg class="faq-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-a"><p>No. All processing happens in your browser. Your image never leaves your device.</p></div></div>
+            <div class="faq-item"><div class="faq-q">What if the file is too large?<svg class="faq-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-a"><p>Hit "Auto-Compress to Fit" — it reduces quality step-by-step until the file meets the limit.</p></div></div>
+            <div class="faq-item"><div class="faq-q">What formats are supported?<svg class="faq-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-a"><p>Upload JPG, PNG, or WebP. Choose your preferred output format at download time.</p></div></div>
+            <div class="faq-item"><div class="faq-q">Works on mobile?<svg class="faq-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-a"><p>Yes — mobile-first design. Works on any Android or iPhone.</p></div></div>
+            <div class="faq-item"><div class="faq-q">Can I enter custom dimensions?<svg class="faq-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-a"><p>Click "Custom Size" and enter any width, height, and max KB you need.</p></div></div>
+        </div>
+    </section>
+</div>
+
+<footer class="footer"><div class="container"><div class="footer-brand" style="display:flex;align-items:center;justify-content:center;gap:8px;"><img src="logo.png" alt="Pixelfit Logo" style="width:24px;height:24px;border-radius:6px;object-fit:cover;">Pixel<span>fit</span></div><p>Free, private, instant photo processing for every Indian exam. Built for students.</p><div class="footer-links"><a href="#how-it-works">How It Works</a><a href="#all-exams">All Exams</a><a href="#faq">FAQ</a><a href="#" id="bug-link-footer">Report Bug</a></div></div></footer>
+
+<div class="toast" id="toast"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><span id="toast-msg">Done!</span></div>
+<button class="scroll-top" id="scroll-top"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg></button>
+
+<script>
+const EXAMS={ssc:{name:"SSC (Staff Selection)",w:350,h:450,kb:50,type:"photo"},"ssc-sig":{name:"SSC Signature",w:400,h:200,kb:20,type:"sign"},upsc:{name:"UPSC Civil Services",w:350,h:350,kb:300,type:"photo"},"upsc-sig":{name:"UPSC Signature",w:350,h:350,kb:300,type:"sign"},ibps:{name:"IBPS PO / Clerk",w:200,h:230,kb:50,type:"photo"},"ibps-sig":{name:"IBPS Signature",w:140,h:60,kb:20,type:"sign"},railway:{name:"RRB Railway",w:320,h:240,kb:50,type:"photo"},neet:{name:"NEET UG Passport",w:350,h:450,kb:200,type:"photo"},"neet-post":{name:"NEET Postcard Photo",w:400,h:600,kb:200,type:"photo"},jee:{name:"JEE Main",w:350,h:450,kb:200,type:"photo"},gate:{name:"GATE",w:360,h:480,kb:200,type:"photo"},afcat:{name:"AFCAT",w:350,h:450,kb:100,type:"photo"},capf:{name:"CAPF",w:350,h:450,kb:100,type:"photo"},"kerala-psc":{name:"Kerala PSC (With Stamp)",w:150,h:200,kb:30,type:"stamp"},tnpsc:{name:"TNPSC",w:165,h:210,kb:50,type:"photo"},mppsc:{name:"MPPSC",w:350,h:450,kb:100,type:"photo"},bpsc:{name:"BPSC",w:350,h:450,kb:25,type:"photo"},uppsc:{name:"UPPSC",w:350,h:600,kb:50,type:"photo"},rpsc:{name:"RPSC",w:350,h:450,kb:100,type:"photo"},mpsc:{name:"MPSC",w:350,h:450,kb:50,type:"photo"},gpsc:{name:"GPSC",w:350,h:450,kb:50,type:"photo"},wbpsc:{name:"WBPSC",w:350,h:450,kb:100,type:"photo"},sbi:{name:"SBI PO",w:200,h:230,kb:50,type:"photo"},rbi:{name:"RBI Grade B",w:200,h:230,kb:50,type:"photo"},lic:{name:"LIC AAO",w:200,h:230,kb:50,type:"photo"},ctet:{name:"CTET",w:350,h:450,kb:100,type:"photo"},"ugc-net":{name:"UGC-NET",w:350,h:450,kb:200,type:"photo"},epfo:{name:"EPFO",w:350,h:450,kb:100,type:"photo"},fci:{name:"FCI",w:200,h:230,kb:50,type:"photo"},drdo:{name:"DRDO",w:350,h:450,kb:50,type:"photo"},"delhi-police":{name:"Delhi Police",w:350,h:450,kb:50,type:"photo"},"up-police":{name:"UP Police",w:350,h:450,kb:50,type:"photo"},passport:{name:"Passport Seva",w:350,h:350,kb:240,type:"photo"},"pan-card":{name:"PAN Card",w:213,h:213,kb:30,type:"photo"},"voter-id":{name:"Voter ID",w:350,h:450,kb:50,type:"photo"},"parivahan-dl":{name:"Parivahan DL",w:200,h:230,kb:50,type:"photo"}};
+
+const $=id=>document.getElementById(id);
+const examSelect=$('exam-select'),specBadge=$('spec-badge'),uploadZone=$('upload-zone'),uploadBtn=$('upload-btn'),fileInput=$('file-input'),editorPanel=$('editor-panel'),keralaFields=$('kerala-fields'),canvas=$('canvas'),ctx=canvas.getContext('2d'),qualitySlider=$('quality-slider'),qualityVal=$('quality-val'),offsetX=$('offset-x'),offsetY=$('offset-y'),zoomSlider=$('zoom-slider'),sizeCurrent=$('size-current'),sizeTarget=$('size-target'),meterFill=$('meter-fill'),sizeStatus=$('size-status'),compressBtn=$('compress-btn'),previewBtn=$('preview-btn'),changeImgBtn=$('change-image-btn'),examTbody=$('exam-tbody'),tableSearch=$('table-search'),toast=$('toast'),toastMsg=$('toast-msg'),scrollTopBtn=$('scroll-top'),modalOverlay=$('modal-overlay'),modalImg=$('modal-img'),modalDims=$('modal-dims'),modalSize=$('modal-size'),modalClose=$('modal-close'),finalDlBtn=$('final-download-btn'),formatRadios=document.querySelectorAll('input[name="output-format"]'),bugLink=$('bug-link'),bugLinkFooter=$('bug-link-footer'),bugModal=$('bug-modal-overlay'),bugClose=$('bug-modal-close'),bugDesc=$('bug-desc'),bugDiag=$('bug-diagnostics'),bugCopy=$('bug-copy-btn'),bugSubmit=$('bug-submit-btn');
+
+let sourceImage=null,currentMode='preset',currentExamId='ssc',outputBlob=null;
+function getOutputFormat(){const c=document.querySelector('input[name="output-format"]:checked');return c?c.value:'image/jpeg';}
+function getFormatExt(f){return f==='image/png'?'png':f==='image/webp'?'webp':'jpg';}
+function getSettings(){if(currentMode==='custom')return{w:Math.max(10,parseInt($('cs-w').value)||350),h:Math.max(10,parseInt($('cs-h').value)||450),kb:Math.max(1,parseInt($('cs-kb').value)||50),type:'custom'};return EXAMS[currentExamId];}
+
+function init(){for(const[id,d]of Object.entries(EXAMS)){const o=document.createElement('option');o.value=id;o.textContent=d.name;examSelect.appendChild(o);}buildTable();const p=new URLSearchParams(location.search),u=p.get('exam');if(u&&EXAMS[u]){currentExamId=u;examSelect.value=u;document.title=`${EXAMS[u].name} Photo Resizer — Pixelfit`;$('page-title').innerHTML=`Resize Your <span>${EXAMS[u].name}</span> Photo`;}syncUI();}
+
+function buildTable(filter=''){examTbody.innerHTML='';const q=filter.toLowerCase();for(const[id,d]of Object.entries(EXAMS)){if(q&&!d.name.toLowerCase().includes(q)&&!id.includes(q))continue;const tl=d.type==='sign'?'Signature':d.type==='stamp'?'Photo+Stamp':'Photo';const tc=d.type==='sign'?'sign':d.type==='stamp'?'stamp':'photo';const tr=document.createElement('tr');tr.innerHTML=`<td class="exam-name-cell">${d.name}</td><td>${d.w} × ${d.h} px</td><td>${d.kb} KB</td><td><span class="type-badge ${tc}">${tl}</span></td><td><button class="use-btn" data-exam="${id}">Use →</button></td>`;examTbody.appendChild(tr);}}
+
+function syncUI(){const s=getSettings();specBadge.textContent=`${s.w} × ${s.h} px · ${s.kb} KB`;sizeTarget.textContent=`Max ${s.kb} KB`;keralaFields.classList.toggle('active',s.type==='stamp');}
+
+document.querySelectorAll('.mode-tab').forEach(t=>t.addEventListener('click',()=>{document.querySelectorAll('.mode-tab').forEach(t2=>t2.classList.remove('active'));t.classList.add('active');currentMode=t.dataset.mode;$('panel-preset').classList.toggle('active',currentMode==='preset');$('panel-custom').classList.toggle('active',currentMode==='custom');syncUI();if(sourceImage)renderCanvas();}));
+
+examSelect.addEventListener('change',e=>{currentExamId=e.target.value;const ex=EXAMS[currentExamId];const url=new URL(location);url.searchParams.set('exam',currentExamId);history.pushState({},'',url);document.title=`${ex.name} Photo Resizer — Pixelfit`;$('page-title').innerHTML=`Resize Your <span>${ex.name}</span> Photo`;syncUI();if(sourceImage)renderCanvas();});
+
+['cs-w','cs-h','cs-kb'].forEach(id=>$(id).addEventListener('input',()=>{syncUI();if(sourceImage)renderCanvas();}));
+['kerala-name','kerala-date'].forEach(id=>$(id).addEventListener('input',renderCanvas));
+
+uploadBtn.addEventListener('click',e=>{e.stopPropagation();fileInput.click();});
+uploadZone.addEventListener('click',()=>fileInput.click());
+uploadZone.addEventListener('dragover',e=>{e.preventDefault();uploadZone.classList.add('dragover');});
+uploadZone.addEventListener('dragleave',()=>uploadZone.classList.remove('dragover'));
+uploadZone.addEventListener('drop',e=>{e.preventDefault();uploadZone.classList.remove('dragover');if(e.dataTransfer.files.length)handleFile(e.dataTransfer.files[0]);});
+fileInput.addEventListener('change',e=>{if(e.target.files.length)handleFile(e.target.files[0]);});
+changeImgBtn.addEventListener('click',()=>fileInput.click());
+
+function handleFile(file){if(!file.type.startsWith('image/')){showToast('Please select a valid image.',true);return;}const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{sourceImage=img;offsetX.value=0;offsetY.value=0;zoomSlider.value=100;qualitySlider.value=90;qualityVal.textContent='90%';uploadZone.style.display='none';editorPanel.classList.add('active');renderCanvas();};img.src=e.target.result;};r.readAsDataURL(file);}
+
+qualitySlider.addEventListener('input',()=>{qualityVal.textContent=qualitySlider.value+'%';processOutput();});
+offsetX.addEventListener('input',renderCanvas);offsetY.addEventListener('input',renderCanvas);zoomSlider.addEventListener('input',renderCanvas);
+
+examTbody.addEventListener('click',e=>{const b=e.target.closest('.use-btn');if(!b)return;const id=b.dataset.exam;currentMode='preset';document.querySelectorAll('.mode-tab').forEach(t=>t.classList.remove('active'));document.querySelector('[data-mode="preset"]').classList.add('active');$('panel-preset').classList.add('active');$('panel-custom').classList.remove('active');examSelect.value=id;currentExamId=id;const ex=EXAMS[id];const url=new URL(location);url.searchParams.set('exam',id);history.pushState({},'',url);document.title=`${ex.name} Photo Resizer — Pixelfit`;$('page-title').innerHTML=`Resize Your <span>${ex.name}</span> Photo`;syncUI();if(sourceImage)renderCanvas();window.scrollTo({top:0,behavior:'smooth'});});
+
+document.querySelectorAll('.faq-q').forEach(q=>q.addEventListener('click',()=>{const it=q.parentElement;document.querySelectorAll('.faq-item').forEach(i=>{if(i!==it)i.classList.remove('open');});it.classList.toggle('open');}));
+
+window.addEventListener('scroll',()=>scrollTopBtn.classList.toggle('visible',window.scrollY>400));
+scrollTopBtn.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+tableSearch.addEventListener('input',e=>buildTable(e.target.value));
+
+function renderCanvas(){if(!sourceImage)return;const s=getSettings();canvas.width=s.w;canvas.height=s.h;ctx.fillStyle='#fff';ctx.fillRect(0,0,s.w,s.h);const z=parseInt(zoomSlider.value)/100;const sc=Math.max(s.w/sourceImage.width,s.h/sourceImage.height)*z;const dw=sourceImage.width*sc,dh=sourceImage.height*sc;const mx=(parseInt(offsetX.value)/50)*(dw-s.w)*0.5,my=(parseInt(offsetY.value)/50)*(dh-s.h)*0.5;ctx.drawImage(sourceImage,(s.w-dw)/2+mx,(s.h-dh)/2+my,dw,dh);if(s.type==='stamp'){const nm=$('kerala-name').value||'NAME',dt=$('kerala-date').value||'DD/MM/YYYY';const sh=Math.max(36,s.h*0.2);ctx.fillStyle='rgba(255,255,255,0.92)';ctx.fillRect(0,s.h-sh,s.w,sh);ctx.strokeStyle='#ccc';ctx.lineWidth=1;ctx.strokeRect(0,s.h-sh,s.w,sh);const fs=Math.max(10,Math.min(14,s.w/12));ctx.fillStyle='#000';ctx.font=`bold ${fs}px Inter,Arial,sans-serif`;ctx.textAlign='center';ctx.fillText(nm,s.w/2,s.h-sh/2-2);ctx.font=`${fs-1}px Inter,Arial,sans-serif`;ctx.fillText(dt,s.w/2,s.h-sh/2+fs);}processOutput();}
+
+function processOutput(){if(!sourceImage)return;const s=getSettings(),q=parseInt(qualitySlider.value)/100;canvas.toBlob(blob=>{outputBlob=blob;const kb=blob.size/1024,pct=Math.min((kb/s.kb)*100,100);sizeCurrent.textContent=`${kb.toFixed(1)} KB`;meterFill.style.width=pct+'%';if(kb>s.kb){meterFill.className='meter-fill red';sizeStatus.className='size-status over';sizeStatus.textContent=`⚠ ${(kb-s.kb).toFixed(1)} KB over`;}else if(pct>80){meterFill.className='meter-fill yellow';sizeStatus.className='size-status warn';sizeStatus.textContent='✓ Within limit (close)';}else{meterFill.className='meter-fill green';sizeStatus.className='size-status ok';sizeStatus.textContent='✓ Within limit';}compressBtn.disabled=(kb<=s.kb);previewBtn.disabled=false;},'image/jpeg',q);}
+
+compressBtn.addEventListener('click',()=>{if(!sourceImage)return;const s=getSettings();let q=parseInt(qualitySlider.value)/100;compressBtn.disabled=true;compressBtn.textContent='Compressing...';const attempt=()=>{q-=0.05;if(q<0.05){showToast('Cannot compress further.',true);resetCBtn();return;}canvas.toBlob(blob=>{if(blob.size/1024<=s.kb){outputBlob=blob;qualitySlider.value=Math.round(q*100);qualityVal.textContent=Math.round(q*100)+'%';processOutput();showToast('Compressed!');resetCBtn();}else attempt();},'image/jpeg',q);};attempt();});
+function resetCBtn(){compressBtn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg> Auto-Compress to Fit';}
+
+previewBtn.addEventListener('click',openModal);
+function openModal(){const s=getSettings(),fmt=getOutputFormat(),q=parseInt(qualitySlider.value)/100;canvas.toBlob(blob=>{outputBlob=blob;if(modalImg.src.startsWith('blob:'))URL.revokeObjectURL(modalImg.src);modalImg.src=URL.createObjectURL(blob);modalDims.textContent=`${s.w} × ${s.h} px`;modalSize.textContent=`${(blob.size/1024).toFixed(1)} KB`;modalOverlay.classList.add('active');document.body.style.overflow='hidden';},fmt,fmt==='image/png'?undefined:q);}
+
+formatRadios.forEach(r=>r.addEventListener('change',()=>{if(modalOverlay.classList.contains('active'))openModal();}));
+modalClose.addEventListener('click',closeModal);
+modalOverlay.addEventListener('click',e=>{if(e.target===modalOverlay)closeModal();});
+function closeModal(){modalOverlay.classList.remove('active');document.body.style.overflow='';if(modalImg.src.startsWith('blob:'))URL.revokeObjectURL(modalImg.src);}
+
+finalDlBtn.addEventListener('click',()=>{if(!outputBlob)return;const s=getSettings(),fmt=getOutputFormat(),ext=getFormatExt(fmt),q=parseInt(qualitySlider.value)/100;canvas.toBlob(blob=>{const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`${currentMode==='preset'?(EXAMS[currentExamId]?.name||'exam'):'custom'}_${s.w}x${s.h}.${ext}`;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);showToast(`Downloaded as ${ext.toUpperCase()}!`);closeModal();},fmt,fmt==='image/png'?undefined:q);});
+
+function showToast(msg,err=false){toastMsg.textContent=msg;toast.style.background=err?'linear-gradient(135deg,#f87171,#ef4444)':'linear-gradient(135deg,#34d399,#10b981)';toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),3000);}
+
+function getDiagnostics(){const s=getSettings();return `Browser: ${navigator.userAgent}\nScreen: ${window.screen.width}x${window.screen.height}\nMode: ${currentMode}\nSelected Exam: ${currentMode==='preset'?currentExamId:'N/A'}\nTarget Dimensions: ${s.w}x${s.h} px\nTarget KB Limit: ${s.kb} KB\nImage Loaded: ${sourceImage?'Yes':'No'}\nZoom: ${zoomSlider.value}%\nQuality: ${qualitySlider.value}%\nLive File Size: ${outputBlob?(outputBlob.size/1024).toFixed(1)+' KB':'N/A'}\nTimestamp: ${new Date().toISOString()}`;}
+function openBugModal(e){e.preventDefault();bugDesc.value='';bugDiag.textContent=getDiagnostics();bugModal.classList.add('active');document.body.style.overflow='hidden';}
+bugLink.addEventListener('click',openBugModal);
+bugLinkFooter.addEventListener('click',openBugModal);
+bugClose.addEventListener('click',()=>{bugModal.classList.remove('active');document.body.style.overflow='';});
+bugModal.addEventListener('click',e=>{if(e.target===bugModal){bugModal.classList.remove('active');document.body.style.overflow='';}});
+bugCopy.addEventListener('click',()=>{navigator.clipboard.writeText(getDiagnostics()+'\n\nUser Description:\n'+bugDesc.value);showToast('Diagnostics copied to clipboard!');});
+bugSubmit.addEventListener('click',()=>{const desc=encodeURIComponent(bugDesc.value||'No description provided.'),diag=encodeURIComponent(getDiagnostics());window.location.href=`mailto:support@pixelfit.com?subject=Pixelfit Bug Report&body=Description:%0A${desc}%0A%0ADiagnostics:%0A${diag}`;showToast('Email client opened!');bugModal.classList.remove('active');document.body.style.overflow='';});
+
+init();
+</script>
+</body>
+</html>
